@@ -83,14 +83,15 @@ Use "nwa [command] --help" for more information about a command.
 
 - **Advanced**
 
-| Short | Long       | Default               | Description                                                                                         |
-|-------|------------|-----------------------|-----------------------------------------------------------------------------------------------------|
-| -V    | --verbose  | `false` (unspecified) | verbose mode (Allow log output below the **WARN** level)                                            |
-| -m    | --mute     | `false` (unspecified) | mute mode (Disable all log output)                                                                  |
-| -t    | --tmpl     | `""`                  | template file path                                                                                  |
-| -T    | --tmpltype | `""`                  | template type (`live`, `static`, `raw`)                                                             |
-| -f    | --fuzzy    | `false` (unspecified) | commands `check` and `remove` will ignore differences in the **year** within the license header     |
-| -k    | --keyword  | `[]`                  | keyword used to confirm the existence of license headers (only used in commands `add` and `update`) |
+| Short | Long       | Default               | Description                                                                                                                                            |
+|-------|------------|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| -V    | --verbose  | `false` (unspecified) | verbose mode (Allow log output below the **WARN** level)                                                                                               |
+| -m    | --mute     | `false` (unspecified) | mute mode (Disable all log output)                                                                                                                     |
+| -t    | --tmpl     | `""`                  | template file path                                                                                                                                     |
+| -T    | --tmpltype | `""`                  | template type (`live`, `static`, `raw`)                                                                                                                |
+| -f    | --fuzzy    | `false` (unspecified) | commands `check` and `remove` will ignore differences in the **year** within the license header                                                        |
+| -k    | --keyword  | `[]`                  | keyword used to confirm the existence of license headers (only used in commands `add` and `update`)                                                    |
+| -S    | --style    | `[]`                  | customize the comment style (`line`, `block`, `hash`, `doc`, `starred-block`) for different extensions in the format `extension:style`, e.g.`go:block` |
 
 ### DoubleStar(**) Patterns
 
@@ -223,6 +224,7 @@ nwa update [flags] path...
 > - `<!-- -->`: .html, .md, .vue, etc.
 > - `{# #}`: .j2, .twig, etc.
 > - `(** *)`: .ml, .mli, etc.
+> - `{{!-- --}}`: .hbs, .handlebars, etc.
 >  
 > Please use the `remove` + `add` commands instead of the `update` command.
 
@@ -294,6 +296,7 @@ nwa:
   tmpltype: ""                      # Default: ""; Optional: "live", "static", "raw"
   tmpl: ""                          # Default: ""                                                       
   keyword: []                       # Default: []; Used for "add" and "update" commands
+  style: []                         # Default: []
 ```
 
 ### Built-in License Header Templates and Custom Templates
@@ -501,12 +504,16 @@ repos:
 
 ### Docker - Run NWA through docker, for those do not have a Go environment
 
+> - main: Created/updated on every push to the main branch.
+> - latest: Created/updated only when pushing version tags.
+> - version tags (e.g., 0.1.3): Created once per version tag push and preserved permanently.
+
 - **Install**
 
 Install the nwa docker image directly:
 
 ```shell
-docker pull ghcr.io/b1nary-gr0up/nwa:main
+docker pull ghcr.io/b1nary-gr0up/nwa:lastest
 ```
 
 **OR**

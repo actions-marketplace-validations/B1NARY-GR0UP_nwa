@@ -50,8 +50,15 @@ var counter struct {
 	failed     int // unexpected error occurred
 }
 
+type TaskParams struct {
+	Paths, Skips, Keywords, Styles []string
+	Raw, Fuzzy                     bool
+	Tmpl                           []byte
+	Op                             Operation
+}
+
 // PrepareTasks walk through the dir and add tasks into task chan
-func PrepareTasks(paths []string, tmpl []byte, operation Operation, skips, keywords []string, raw, fuzzy bool) {
+func PrepareTasks(params *TaskParams) {
 	counter = struct {
 		scanned    int
 		matched    int
@@ -62,8 +69,8 @@ func PrepareTasks(paths []string, tmpl []byte, operation Operation, skips, keywo
 	}{}
 	taskC = make(chan func(), _size)
 
-	for _, path := range paths {
-		walkDir(path, tmpl, operation, skips, keywords, raw, fuzzy)
+	for _, path := range params.Paths {
+		walkDir(path, params.Tmpl, params.Op, params.Skips, params.Keywords, params.Styles, params.Raw, params.Fuzzy)
 	}
 
 	go func() {

@@ -37,7 +37,7 @@ const (
 
 const _root = "."
 
-func walkDir(pattern string, tmpl []byte, operation Operation, skips, keywords []string, raw, fuzzy bool) {
+func walkDir(pattern string, tmpl []byte, operation Operation, skips, keywords, styles []string, raw, fuzzy bool) {
 	if err := filepath.WalkDir(_root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			counter.failed++
@@ -76,7 +76,7 @@ func walkDir(pattern string, tmpl []byte, operation Operation, skips, keywords [
 		if !raw {
 			// generate header according to the file type
 			// NOTE: The file has not been modified yet
-			header, err = generateHeader(path, tmpl)
+			header, err = generateHeader(path, tmpl, styles)
 			if err != nil {
 				counter.failed++
 				slog.Warn(err.Error(), slog.String("path", path))
@@ -182,6 +182,9 @@ func doUpdate(path string, d fs.DirEntry, header []byte, keywords []string) func
 
 		// get the shebang of the special file
 		shebang := matchShebang(content)
+		// check if file has a utf8BOM
+		hasBOM := matchBOM(content)
+
 		file, err := os.Open(path)
 		if err != nil {
 			counter.failed++
@@ -212,7 +215,7 @@ func doUpdate(path string, d fs.DirEntry, header []byte, keywords []string) func
 		header = append(header, '\n')
 
 		// assemble license header and modify the file
-		b := assemble(shebang, header, afterBlankLine, true)
+		b := assemble(shebang, header, afterBlankLine, hasBOM, true)
 
 		err = os.WriteFile(path, b, d.Type())
 		if err != nil {
@@ -305,12 +308,14 @@ func doAdd(path string, d fs.DirEntry, header []byte, keywords []string) func() 
 
 		// get the shebang of the special file
 		shebang := matchShebang(content)
+		// check if file has a utf8BOM
+		hasBOM := matchBOM(content)
 
 		// add a blank line at the end of the header
 		header = append(header, '\n')
 
 		// assemble license header and modify the file
-		b := assemble(shebang, header, content, false)
+		b := assemble(shebang, header, content, hasBOM, false)
 
 		err = os.WriteFile(path, b, d.Type())
 		if err != nil {
